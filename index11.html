@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comprobante Móvil</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 10px;
+    }
+
+    .formulario, .comprobante {
+      max-width: 360px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 0 auto 20px auto;
+      font-size: 12px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+
+    .comprobante {
+      display: none;
+      border: 2px solid black;
+      padding: 10px;
+    }
+
+    .comprobante table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 11px;
+    }
+
+    .comprobante td {
+      border: 1px solid #000;
+      padding: 4px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .barcode img {
+      display: block;
+      margin: 10px auto;
+      height: 50px;
+    }
+
+    .big {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .envio-premium {
+      font-weight: bold;
+      color: #000;
+      margin-top: 5px;
+    }
+
+    @media print {
+      .formulario {
+        display: none;
+      }
+      .comprobante {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="formulario">
+  <h3>Formulario del Comprobante</h3>
+  <input type="text" id="guia" placeholder="Número de Guía (opcional)">
+  <input type="text" id="nombre" placeholder="Nombre del destinatario">
+  <input type="text" id="telefono" placeholder="Teléfono">
+  <input type="text" id="cedula" placeholder="Cédula o NIT">
+  <input type="text" id="email" placeholder="Correo electrónico">
+  <input type="text" id="ciudad" placeholder="Ciudad" value="FUSAGASUGÁ">
+  <input type="text" id="observaciones" placeholder="Observaciones">
+  <input type="number" id="valor" placeholder="Valor a Cobrar (COP)">
+  <input type="text" id="peso" placeholder="Peso (kg)" value="109">
+  <input type="text" id="volumen" placeholder="Volumen (ej. 18 / 3 / 9)" value="18 / 3 / 9">
+  <input type="text" id="efecty" placeholder="Código Efecty" value="1110084">
+  <button onclick="generarComprobante()">Generar Comprobante</button>
+  <button onclick="descargarPNG()">Descargar PNG</button>
+</div>
+
+<div id="comprobante" class="comprobante">
+  <div class="header">
+    <div>FUA 46 FU4</div>
+    <div>GUÍA No. <span id="guiaOut"></span></div>
+    <div>COBRO - PZ: 1</div>
+  </div>
+
+  <table>
+    <tr><td>Ciudad</td><td id="ciudadOut"></td><td>F.P.</td><td>CREDITO</td></tr>
+    <tr><td>Departamento</td><td>CUNDINAMARCA</td><td>M.T.</td><td>TERRESTRE</td></tr>
+  </table>
+
+  <p><strong>Nombre:</strong> <span id="nombreOut"></span><br>
+     <strong>Teléfono:</strong> <span id="telefonoOut"></span><br>
+     <strong>Cédula/NIT:</strong> <span id="cedulaOut"></span><br>
+     <strong>Email:</strong> <span id="emailOut"></span><br>
+     <strong>Ciudad:</strong> <span id="ciudadOut2"></span><br>
+     <strong>Observaciones:</strong> <span id="obsOut"></span><br>
+     <span class="envio-premium">Envío Premium</span>
+  </p>
+
+  <table>
+    <tr><td>Dice Contener</td><td colspan="3">MOTOCICLETA - Ref Akt 110</td></tr>
+    <tr><td>Vr. Declarado</td><td>VOL: <span id="volOut"></span></td><td>Peso Vol:</td><td>0</td></tr>
+    <tr><td>Vr. Flete</td><td>Peso (kg): <span id="pesoOut"></span></td><td>No. Remisión:</td><td></td></tr>
+    <tr><td>Vr. Sobreflete</td><td></td><td>Vr. Total:</td><td></td></tr>
+  </table>
+
+  <p><strong>Vr. a Cobrar:</strong> <span class="big" id="valorOut"></span></p>
+  <p><strong>Código Efecty:</strong> <span id="efectyOut"></span></p>
+
+  <!-- Código de barras SIN número -->
+  <div class="barcode" id="barcodeOut"></div>
+
+  <p class="center">DG-6-CL-IDM-F-68 V.4</p>
+</div>
+
+<script>
+  function generarGuia() {
+    return Math.floor(100000000 + Math.random() * 900000000);
+  }
+
+  function formatearMoneda(valor) {
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(valor);
+  }
+
+  function generarComprobante() {
+    const guia = document.getElementById("guia").value || generarGuia();
+    document.getElementById("comprobante").style.display = "block";
+
+    document.getElementById("guiaOut").textContent = guia;
+    document.getElementById("ciudadOut").textContent = document.getElementById("ciudad").value;
+    document.getElementById("ciudadOut2").textContent = document.getElementById("ciudad").value;
+    document.getElementById("nombreOut").textContent = document.getElementById("nombre").value;
+    document.getElementById("telefonoOut").textContent = document.getElementById("telefono").value;
+    document.getElementById("cedulaOut").textContent = document.getElementById("cedula").value;
+    document.getElementById("emailOut").textContent = document.getElementById("email").value;
+    document.getElementById("obsOut").textContent = document.getElementById("observaciones").value;
+    document.getElementById("valorOut").textContent = formatearMoneda(document.getElementById("valor").value || 0);
+    document.getElementById("pesoOut").textContent = document.getElementById("peso").value;
+    document.getElementById("volOut").textContent = document.getElementById("volumen").value;
+    document.getElementById("efectyOut").textContent = document.getElementById("efecty").value;
+
+    // Generar código de barras SIN texto
+    const barcodeURL = `https://barcode.tec-it.com/barcode.ashx?data=${guia}&code=Code128&text=0&hidehrt=true`;
+    document.getElementById("barcodeOut").innerHTML = `<img src="${barcodeURL}" alt="Código de Barras">`;
+  }
+
+  function descargarPNG() {
+    const comprobante = document.getElementById("comprobante");
+    html2canvas(comprobante, { scale: 2 }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'comprobante.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  }
+</script>
+
+</body>
+</html>
