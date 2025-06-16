@@ -159,8 +159,8 @@
 
   function generarComprobante() {
     const guia = document.getElementById("guia").value || generarGuia();
-    document.getElementById("comprobante").style.display = "block";
 
+    // Rellenar los campos del comprobante
     document.getElementById("guiaOut").textContent = guia;
     document.getElementById("ciudadOut").textContent = document.getElementById("ciudad").value;
     document.getElementById("ciudadOut2").textContent = document.getElementById("ciudad").value;
@@ -194,6 +194,11 @@
       height: 50,
       displayValue: false // Ocultar el texto debajo del código de barras
     });
+
+    // Mostrar el comprobante después de un breve retraso
+    setTimeout(() => {
+      document.getElementById("comprobante").style.display = "block";
+    }, 300); // Retraso de 300 ms para asegurar que el código de barras esté listo
   }
 
   function descargarPNG() {
